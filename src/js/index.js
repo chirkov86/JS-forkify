@@ -68,15 +68,19 @@ const controlRecipe = async () => {
 
         // Create Recipe object
         state.recipe = new Recipe(id);
+        
+        // For having access in a console
+        window.r = state.recipe;
 
         try {
             // Get recipe data
-            // await state.recipe.getRecipe();
-            state.recipe = require('./sampleRecipe.json');
+            await state.recipe.getRecipe();
+            //state.recipe = require('./sampleRecipe.json');
 
             // Calculate servings and time
-            //  state.recipe.calcTime();
-            //  state.recipe.calcServings();
+            state.recipe.calcTime();
+            state.recipe.calcServings();
+            state.recipe.parseIngredients();
 
             // Render
             console.log(state.recipe);
