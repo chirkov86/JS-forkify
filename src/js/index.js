@@ -1,5 +1,5 @@
 import Search from './models/Search';
-import { elements } from './views/base';
+import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
 var json = require('./sampleResult.json');
 
@@ -16,12 +16,14 @@ const controlSearch = async () => {
         // 3. prepare UI for results
         searchView.clearInput();
         searchView.clearResults();
+        renderLoader(elements.searchResult);
 
         // 4. search for recipes
-        //await state.search.getResults();
-        state.search.result = json;
+        await state.search.getResults();
+        //state.search.result = json;
 
         // 5. render results on UI
+        clearLoader();
         console.log(state.search.result);
         searchView.renderResult(state.search.result);
     }
