@@ -1,10 +1,14 @@
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
 var json = require('./sampleResult.json');
 
 const state = {};
 
+/**
+ * Search controller
+ */
 const controlSearch = async () => {
     // 1. get query from view
     const query = searchView.getInput();
@@ -18,14 +22,20 @@ const controlSearch = async () => {
         searchView.clearResults();
         renderLoader(elements.searchResult);
 
-        // 4. search for recipes
-        //await state.search.getResults();
-        state.search.result = json;
+        try {
+            // 4. search for recipes
+            //await state.search.getResults();
+            state.search.result = json;
 
-        // 5. render results on UI
-        clearLoader();
-        console.log(state.search.result);
-        searchView.renderResult(state.search.result);
+            // 5. render results on UI
+            clearLoader();
+            console.log(state.search.result);
+            searchView.renderResult(state.search.result);
+        } catch (err) {
+            console.log(err);
+            alert(err);
+            clearLoader();
+        }
     }
 }
 
@@ -43,4 +53,39 @@ elements.searchResPages.addEventListener('click', e => {
         searchView.clearResults();
         searchView.renderResult(state.search.result, goToPage);
     }
-})
+});
+
+/**
+ * Recipe controller
+ */
+const controlRecipe = async () => {
+    // location returns entire URL
+    const id = `${window.location.hash}`.substring(1);
+    console.log(id);
+
+    if (id) {
+        // Prepare UI for changes
+
+        // Create Recipe object
+        state.recipe = new Recipe(id);
+
+        try {
+            // Get recipe data
+            // await state.recipe.getRecipe();
+            state.recipe = require('./sampleRecipe.json');
+
+            // Calculate servings and time
+            //  state.recipe.calcTime();
+            //  state.recipe.calcServings();
+
+            // Render
+            console.log(state.recipe);
+        } catch (err) {
+            console.log(err);
+            alert(err);
+        }
+    }
+};
+
+// 'hashchange' is for click on a recipe and 'load' is for load URL with anchor without clicking (e.g. from a bookmark)
+['hashchange', 'load'].forEach(it => window.addEventListener(it, controlRecipe));
