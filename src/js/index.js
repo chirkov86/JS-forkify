@@ -22,7 +22,7 @@ const controlSearch = async () => {
         state.search.result = json;
 
         // 5. render results on UI
-        //console.log(state.search.result);
+        console.log(state.search.result);
         searchView.renderResult(state.search.result);
     }
 }
