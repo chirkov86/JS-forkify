@@ -19,8 +19,8 @@ const controlSearch = async () => {
         renderLoader(elements.searchResult);
 
         // 4. search for recipes
-        await state.search.getResults();
-        //state.search.result = json;
+        //await state.search.getResults();
+        state.search.result = json;
 
         // 5. render results on UI
         clearLoader();
@@ -33,3 +33,14 @@ elements.searchForm.addEventListener('submit', e => {
     e.preventDefault();
     controlSearch();
 });
+
+elements.searchResPages.addEventListener('click', e => {
+    // closest() returns button instead of it's innner elements clicked, e.g. <svg> or <span>
+    const btn = e.target.closest('.btn-inline');
+    if (btn) {
+        const goToPage = parseInt(btn.dataset.goto, 10);
+        console.log(goToPage);
+        searchView.clearResults();
+        searchView.renderResult(state.search.result, goToPage);
+    }
+})
