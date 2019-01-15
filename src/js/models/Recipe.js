@@ -8,16 +8,23 @@ export default class Recipe {
 
     async getRecipe() {
         try {
-            const res = await axios(`https://www.food2fork.com/api/get?key=${key}&rId=${this.id}`);
+            let res = await axios(`https://www.food2fork.com/api/get?key=${key}&rId=${this.id}`);
             if (res.data.error) {
                 // Happens when API limit is over
                 alert(res.data.error);
+                res = require('../sampleRecipe.json');
+                this.title = res.title;
+                this.author = res.author;
+                this.img = res.img;
+                this.url = res.url;
+                this.ingredients = res.ingredients;
+            } else {
+                this.title = res.data.recipe.title;
+                this.author = res.data.recipe.publisher;
+                this.img = res.data.recipe.image_url;
+                this.url = res.data.recipe.source_url;
+                this.ingredients = res.data.recipe.ingredients;
             }
-            this.title = res.data.recipe.title;
-            this.author = res.data.recipe.publisher;
-            this.img = res.data.recipe.image_url;
-            this.url = res.data.recipe.source_url;
-            this.ingredients = res.data.recipe.ingredients;
         } catch (err) {
             console.log(err);
             alert(err);
@@ -25,19 +32,20 @@ export default class Recipe {
     }
 
     calcTime() {
-        // Assuming that we need 15 min foe each 3 ingredients
+        // Assuming that we need 15 min for each 3 ingredients
         const numIng = this.ingredients.length;
         const periods = Math.ceil(numIng / 3);
         this.time = periods * 15;
     }
 
     calcServings() {
-        this.calcServings = 4;
+        this.servings = 4;
     }
 
     parseIngredients() {
         const unitsLong = ['tablespoons', 'tablespoon', 'ounces', 'ounce', 'teaspoons', 'teaspoon', 'cups', 'pounds'];
         const unitsShort = ['tbsp', 'tbsp', 'oz', 'oz', 'tsp', 'tsp', 'tsp', 'cup', 'pound'];
+        const units = [...unitsShort, 'kg', 'g'];
 
         const newIngredients = this.ingredients.map(it => {
             // Uniform units
@@ -51,7 +59,7 @@ export default class Recipe {
 
             // Parse ingredients into count, unit and ingredient
             const arrIng = ingredient.split(' ');
-            const unitIndex = arrIng.findIndex(it => unitsShort.includes(it));
+            const unitIndex = arrIng.findIndex(it => units.includes(it));
 
             let objIng;
             if (unitIndex > -1) {

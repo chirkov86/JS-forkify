@@ -2,6 +2,7 @@ import Search from './models/Search';
 import Recipe from './models/Recipe';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
+import * as recipeView from './views/recipeView';
 var json = require('./sampleResult.json');
 
 const state = {};
@@ -29,6 +30,7 @@ const controlSearch = async () => {
 
             // 5. render results on UI
             clearLoader();
+            console.log('This is prepared result:')
             console.log(state.search.result);
             searchView.renderResult(state.search.result);
         } catch (err) {
@@ -49,7 +51,6 @@ elements.searchResPages.addEventListener('click', e => {
     const btn = e.target.closest('.btn-inline');
     if (btn) {
         const goToPage = parseInt(btn.dataset.goto, 10);
-        console.log(goToPage);
         searchView.clearResults();
         searchView.renderResult(state.search.result, goToPage);
     }
@@ -61,29 +62,27 @@ elements.searchResPages.addEventListener('click', e => {
 const controlRecipe = async () => {
     // location returns entire URL
     const id = `${window.location.hash}`.substring(1);
-    console.log(id);
-
     if (id) {
         // Prepare UI for changes
+        recipeView.clearRecipe();
+        renderLoader(elements.recipe);
 
         // Create Recipe object
         state.recipe = new Recipe(id);
         
-        // For having access in a console
-        window.r = state.recipe;
-
         try {
             // Get recipe data
             await state.recipe.getRecipe();
-            //state.recipe = require('./sampleRecipe.json');
 
             // Calculate servings and time
             state.recipe.calcTime();
             state.recipe.calcServings();
-            //state.recipe.parseIngredients();
+            state.recipe.parseIngredients();
 
             // Render
-            console.log(state.recipe);
+            clearLoader();
+            recipeView.renderRecipe(state.recipe);
+
         } catch (err) {
             console.log(err);
             alert(err);
