@@ -25,12 +25,10 @@ const controlSearch = async () => {
 
         try {
             // 4. search for recipes
-            //await state.search.getResults();
-            state.search.result = json;
+            await state.search.getResults();
 
             // 5. render results on UI
             clearLoader();
-            console.log('This is prepared result:')
             console.log(state.search.result);
             searchView.renderResult(state.search.result);
         } catch (err) {
@@ -70,7 +68,7 @@ const controlRecipe = async () => {
 
         // Create Recipe object
         state.recipe = new Recipe(id);
-        
+
         try {
             // Get recipe data
             await state.recipe.getRecipe();
@@ -93,3 +91,17 @@ const controlRecipe = async () => {
 
 // 'hashchange' is for click on a recipe and 'load' is for load URL with anchor without clicking (e.g. from a bookmark)
 ['hashchange', 'load'].forEach(it => window.addEventListener(it, controlRecipe));
+
+// Handle recipe button clicks
+elements.recipe.addEventListener('click', e => {
+    if (e.target.matches('.btn-decrease, .btn-decrease *')) {
+        // Decrease btn is clicked
+        if (state.recipe.servings > 1) {
+            state.recipe.updateServings('dec');
+        }
+    } else if (e.target.matches('.btn-increase, .btn-increase *')) {
+        // Decrease btn is clicked
+        state.recipe.updateServings('inc');
+    }
+    recipeView.updateServingsIngredients(state.recipe);
+});

@@ -11,7 +11,8 @@ export default class Recipe {
             let res = await axios(`https://www.food2fork.com/api/get?key=${key}&rId=${this.id}`);
             if (res.data.error) {
                 // Happens when API limit is over
-                alert(res.data.error);
+                //alert(res.data.error);
+                console.warn('API limit is exceeded');
                 res = require('../sampleRecipe.json');
                 this.title = res.title;
                 this.author = res.author;
@@ -98,5 +99,16 @@ export default class Recipe {
             return objIng;
         });
         this.ingredients = newIngredients;
+    }
+
+    updateServings(type) {
+        // Servings
+        const newServings = type  === 'dec' ? this.servings - 1 : this.servings + 1;
+        // Ingredients
+        this.ingredients.forEach(ing => {
+            ing.count *= (newServings / this.servings);
+        })
+        this.servings = newServings;
+
     }
 }
