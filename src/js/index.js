@@ -1,11 +1,12 @@
 import Search from './models/Search';
 import Recipe from './models/Recipe';
 import List from './models/List';
+import Likes from './models/Likes';
 import { elements, renderLoader, clearLoader } from './views/base';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
-var json = require('./sampleResult.json');
+import * as likesView from './views/likesView';
 
 const state = {};
 
@@ -82,7 +83,8 @@ const controlRecipe = async () => {
 
             // Render
             clearLoader();
-            recipeView.renderRecipe(state.recipe);
+            const isLiked = state.likes ? state.likes.isLiked(id) : false;
+            recipeView.renderRecipe(state.recipe, isLiked);
 
         } catch (err) {
             console.log(err);
@@ -108,7 +110,11 @@ elements.recipe.addEventListener('click', e => {
         state.recipe.updateServings('inc');
         recipeView.updateServingsIngredients(state.recipe);
     } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
+        // Add ingredients to shopping list
         controlList();
+    } else if (e.target.matches('.recipe__love, .recipe__love *')) {
+        // Like controller
+        controlLike();
     }
 });
 
@@ -139,9 +145,41 @@ elements.shopping.addEventListener('click', e => {
         state.list.deleteItem(id);
         // Delete from UI 
         listView.deleteItem(id);
-    // Handle count update
+        // Handle count update
     } else if (e.target.matches('.shopping__count-value')) {
         const val = parseFloat(e.target.value, 10);
         state.list.updateCount(id, val);
     }
 });
+
+/**
+ * LIKES CONTROLLER
+ */
+const controlLike = () => {
+    if (!state.likes) state.likes = new Likes();
+    const id = state.recipe.id;
+
+    // User has not liked current recipe yet
+    if (!state.likes.isLiked(id)) {
+        // Add like to the state
+        const newLike = state.likes.addLike(
+            id,
+            state.recipe.title,
+            state.recipe.author,
+            state.recipe.img
+        )
+        // Toogle like btn
+        likesView.toggleLikeBtn(true);
+        // Add like to UI list
+        likesView.renderLike(newLike);
+        // User has liked it already    
+    } else {
+        // Remove like from the state
+        state.likes.deleteLike(id);
+        // Toogle like btn
+        likesView.toggleLikeBtn(false);
+        // Remove like from UI list
+        likesView.deleteLike(id);
+    }
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+};
