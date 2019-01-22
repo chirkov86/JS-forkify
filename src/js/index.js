@@ -7,6 +7,7 @@ import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
 import * as likesView from './views/likesView';
+import { STATUS_CODES } from 'http';
 
 const state = {};
 
@@ -156,7 +157,6 @@ elements.shopping.addEventListener('click', e => {
  * LIKES CONTROLLER
  */
 const controlLike = () => {
-    if (!state.likes) state.likes = new Likes();
     const id = state.recipe.id;
 
     // User has not liked current recipe yet
@@ -183,3 +183,12 @@ const controlLike = () => {
     }
     likesView.toggleLikeMenu(state.likes.getNumLikes());
 };
+
+// Restore liked recepies on page load
+window.addEventListener('load', () => {
+    state.likes = new Likes();
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+    state.likes.likes.forEach(it => {
+        likesView.renderLike(it);
+    });
+});
